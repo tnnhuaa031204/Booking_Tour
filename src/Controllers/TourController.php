@@ -6,42 +6,54 @@ require_once __DIR__ . '/../Models/Tour.php';
 
 class TourController extends BaseController {
     
-    private \Tour $tourModel;
+    private Tour $tourModel;
     
     public function __construct() {
         $this->tourModel = new Tour();
     }
     
-    // Hiển thị danh sách tour
-    public function index() {
-        $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-        $limit = 9;
+    public function list() {
+        $keyword = $this->get('keyword', '');
+        $province = $this->get('province', '');
+        $minPrice = (float)$this->get('min_price', 0);
+        $maxPrice = (float)$this->get('max_price', 0);
+        $duration = (int)$this->get('duration', 0);
+        $page = (int)$this->get('page', 1);
+        $limit = 12;
         $offset = ($page - 1) * $limit;
         
-        $tours = $this->tourModel->getAll($limit, $offset);
+        $tours = $this->tourModel->searchWithFilters($keyword, $province, $minPrice, $maxPrice, $duration, $limit, $offset);
         $total = $this->tourModel->getTotal();
-        $totalPages = ceil($total / $limit);
+        
+        // Lấy danh sách tỉnh thành để hiển thị bộ lọc
+        $db = db();
+        $stmt = $db->query("SELECT ProvinceID, ProvinceName FROM Provinces WHERE IsActive = 1 ORDER BY ProvinceName");
+        $provinces = $stmt->fetchAll();
         
         $this->view('tour.list', [
             'tours' => $tours,
-            'currentPage' => $page,
-            'totalPages' => $totalPages,
-            'total' => $total
+            'keyword' => $keyword,
+            'province' => $province,
+            'minPrice' => $minPrice,
+            'maxPrice' => $maxPrice,
+            'duration' => $duration,
+            'page' => $page,
+            'total' => $total,
+            'limit' => $limit,
+            'provinces' => $provinces
         ]);
     }
     
-    // Hiển thị chi tiết tour
     public function detail($id = null) {
-        if ($id === null) {
-            $this->redirect('/tour');
+        if (!$id) {
+            $this->redirect('/tour/list');
             return;
         }
         
         $tour = $this->tourModel->getById($id);
-        
         if (!$tour) {
-            http_response_code(404);
-            echo "404 - Không tìm thấy tour";
+            $_SESSION['error'] = 'Không tìm thấy tour';
+            $this->redirect('/tour/list');
             return;
         }
         

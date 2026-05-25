@@ -53,7 +53,7 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item"><a class="nav-link" href="/"><i class="fas fa-home"></i> Trang chủ</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/tour"><i class="fas fa-search"></i> Tour</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/tour/list"><i class="fas fa-search"></i> Tour</a></li>
                     <li class="nav-item"><a class="nav-link" href="/home/about"><i class="fas fa-info-circle"></i> Giới thiệu</a></li>
                     <li class="nav-item"><a class="nav-link" href="/home/contact"><i class="fas fa-envelope"></i> Liên hệ</a></li>
                     

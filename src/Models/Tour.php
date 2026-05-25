@@ -145,5 +145,75 @@ class Tour {
         
         return $stmt->fetchAll();
     }
+    
+    // ========== HÀM MỚI ==========
+    
+    /**
+     * Lấy số lượng tour đang hoạt động
+     */
+    public function getActiveToursCount(): int {
+        $sql = "SELECT COUNT(*) as Count FROM Tours WHERE IsActive = 1";
+        $stmt = $this->db->query($sql);
+        $result = $stmt->fetch();
+        return (int)($result['Count'] ?? 0);
+    }
+    
+    // ========== HÀM LỌC TOUR MỚI ==========
+    
+    /**
+     * Tìm kiếm tour với bộ lọc (tên, khu vực, giá, số ngày)
+     */
+    public function searchWithFilters($keyword = '', $province = '', $minPrice = 0, $maxPrice = 0, $duration = 0, $limit = 12, $offset = 0) {
+        $sql = "SELECT DISTINCT t.*, 
+                       (SELECT TOP 1 Price FROM TourSchedules WHERE TourID = t.TourID) as Price,
+                       (SELECT TOP 1 ImageURL FROM TourImages WHERE TourID = t.TourID AND IsThumbnail = 1) as ThumbnailURL
+                FROM Tours t
+                LEFT JOIN TourDestinations td ON t.TourID = td.TourID
+                LEFT JOIN Destinations d ON td.DestinationID = d.DestinationID
+                LEFT JOIN TourSchedules ts ON t.TourID = ts.TourID
+                WHERE t.IsActive = 1";
+        
+        $params = [];
+        
+        // Lọc theo tên
+        if (!empty($keyword)) {
+            $sql .= " AND t.TourName LIKE :keyword";
+            $params[':keyword'] = '%' . $keyword . '%';
+        }
+        
+        // Lọc theo khu vực (tỉnh thành)
+        if (!empty($province)) {
+            $sql .= " AND d.DestinationName LIKE :province";
+            $params[':province'] = '%' . $province . '%';
+        }
+        
+        // Lọc theo giá
+        if ($minPrice > 0) {
+            $sql .= " AND (SELECT TOP 1 Price FROM TourSchedules WHERE TourID = t.TourID) >= :minPrice";
+            $params[':minPrice'] = $minPrice;
+        }
+        if ($maxPrice > 0) {
+            $sql .= " AND (SELECT TOP 1 Price FROM TourSchedules WHERE TourID = t.TourID) <= :maxPrice";
+            $params[':maxPrice'] = $maxPrice;
+        }
+        
+        // Lọc theo số ngày
+        if ($duration > 0) {
+            $sql .= " AND t.Duration = :duration";
+            $params[':duration'] = $duration;
+        }
+        
+        $sql .= " ORDER BY t.CreatedAt DESC OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY";
+        
+        $stmt = $this->db->prepare($sql);
+        foreach ($params as $key => $value) {
+            $stmt->bindValue($key, $value);
+        }
+        $stmt->bindParam(':limit', $limit, \PDO::PARAM_INT);
+        $stmt->bindParam(':offset', $offset, \PDO::PARAM_INT);
+        $stmt->execute();
+        
+        return $stmt->fetchAll();
+    }
 }
 ?>

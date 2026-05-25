@@ -14,9 +14,6 @@
                     <span class="stat-number"><?= $totalTours ?? 0 ?></span>
                     <p class="mb-0 text-muted">Tổng số tour</p>
                 </div>
-                <div class="stat-icon">
-                    <i class="fas fa-umbrella-beach"></i>
-                </div>
             </div>
         </div>
     </div>
@@ -27,9 +24,6 @@
                     <span class="stat-number"><?= $totalBookings ?? 0 ?></span>
                     <p class="mb-0 text-muted">Tổng đơn đặt</p>
                 </div>
-                <div class="stat-icon">
-                    <i class="fas fa-ticket-alt"></i>
-                </div>
             </div>
         </div>
     </div>
@@ -39,9 +33,6 @@
                 <div>
                     <span class="stat-number"><?= $totalCustomers ?? 0 ?></span>
                     <p class="mb-0 text-muted">Khách hàng</p>
-                </div>
-                <div class="stat-icon">
-                    <i class="fas fa-users"></i>
                 </div>
             </div>
         </div>

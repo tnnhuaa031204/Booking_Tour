@@ -19,11 +19,11 @@
             <div class="row">
                 <div class="col-md-6 mb-3">
                     <label class="form-label">Số tiền giảm *</label>
-                    <input type="number" name="discount_value" class="form-control" value="<?= $voucher['DiscountValue'] ?>" step="1000" required>
+                    <input type="number" name="discount_value" class="form-control" value="<?= $voucher['DiscountValue'] ?>" step="1" required>
                 </div>
                 <div class="col-md-6 mb-3">
                     <label class="form-label">Đơn hàng tối thiểu</label>
-                    <input type="number" name="min_order_value" class="form-control" value="<?= $voucher['MinOrderValue'] ?>" step="1000">
+                    <input type="number" name="min_order_value" class="form-control" value="<?= $voucher['MinOrderValue'] ?>" step="1">
                 </div>
             </div>
             <div class="row">

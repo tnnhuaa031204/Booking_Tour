@@ -1,3 +1,40 @@
+<?php
+// src/Views/layouts/admin_header.php
+
+// Hàm kiểm tra quyền (dùng chung cho tất cả role)
+function hasPermission($permissionCode, $action = 'CanView') {
+    if (!isset($_SESSION['user'])) return false;
+
+    $userId = $_SESSION['user']['UserID'];
+    $db = db();
+
+    try {
+        $stmt = $db->prepare("
+            SELECT rp.$action
+            FROM Users u
+            JOIN Roles r ON u.RoleID = r.RoleID
+            JOIN RolePermissions rp ON r.RoleID = rp.RoleID
+            JOIN Permissions p ON rp.PermissionID = p.PermissionID
+            WHERE u.UserID = :userId AND p.PermissionCode = :permissionCode
+        ");
+        $stmt->execute([
+            ':userId'          => $userId,
+            ':permissionCode'  => $permissionCode,
+        ]);
+        $result = $stmt->fetch();
+        return $result ? (bool)$result[$action] : false;
+    } catch (Exception $e) {
+        return false;
+    }
+}
+
+// Hàm kiểm tra role
+function hasRole($roles) {
+    if (!isset($_SESSION['user'])) return false;
+    $userRole = $_SESSION['user']['RoleName'] ?? '';
+    return is_array($roles) ? in_array($userRole, $roles) : $userRole === $roles;
+}
+?>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -131,7 +168,7 @@
             <small>Quản trị hệ thống</small>
         </div>
         <ul class="nav flex-column">
-            <!-- Dashboard -->
+            <!-- Dashboard - Ai cũng xem được -->
             <li class="nav-item">
                 <a class="nav-link <?= strpos($_SERVER['REQUEST_URI'], '/admin/dashboard') !== false ? 'active' : '' ?>" href="/admin/dashboard">
                     <i class="fas fa-tachometer-alt"></i> <span>Dashboard</span>
@@ -139,71 +176,87 @@
             </li>
 
             <!-- Quản lý Tour -->
+            <?php if (hasPermission('TOUR_VIEW')): ?>
             <li class="nav-item">
                 <a class="nav-link <?= strpos($_SERVER['REQUEST_URI'], '/admin/tours') !== false ? 'active' : '' ?>" href="/admin/tours">
                     <i class="fas fa-umbrella-beach"></i> <span>Quản lý Tour</span>
                 </a>
             </li>
+            <?php endif; ?>
 
             <!-- Lịch khởi hành -->
+            <?php if (hasPermission('SCHEDULE_VIEW')): ?>
             <li class="nav-item">
                 <a class="nav-link <?= strpos($_SERVER['REQUEST_URI'], '/admin/schedules') !== false ? 'active' : '' ?>" href="/admin/schedules">
                     <i class="fas fa-calendar-alt"></i> <span>Lịch khởi hành</span>
                 </a>
             </li>
+            <?php endif; ?>
 
             <!-- Quản lý Booking -->
+            <?php if (hasPermission('BOOKING_VIEW')): ?>
             <li class="nav-item">
                 <a class="nav-link <?= strpos($_SERVER['REQUEST_URI'], '/admin/bookings') !== false ? 'active' : '' ?>" href="/admin/bookings">
                     <i class="fas fa-ticket-alt"></i> <span>Quản lý Booking</span>
                 </a>
             </li>
+            <?php endif; ?>
 
-            <!-- Quản lý Voucher -->
-            <li class="nav-item">
-                <a class="nav-link <?= strpos($_SERVER['REQUEST_URI'], '/admin/vouchers') !== false ? 'active' : '' ?>" href="/admin/vouchers">
-                    <i class="fas fa-tag"></i> <span>Quản lý Voucher</span>
-                </a>
-            </li>
 
-            <!-- ====== MENU MỚI ====== -->
 
-            <!-- Quản lý Hóa đơn (MỚI) -->
+            <!-- Quản lý Hóa đơn -->
+            <?php if (hasPermission('INVOICE_VIEW')): ?>
             <li class="nav-item">
                 <a class="nav-link <?= strpos($_SERVER['REQUEST_URI'], '/admin/invoices') !== false ? 'active' : '' ?>" href="/admin/invoices">
                     <i class="fas fa-file-invoice-dollar"></i> <span>Quản lý Hóa đơn</span>
                 </a>
             </li>
+            <?php endif; ?>
 
-            <!-- Quản lý Đánh giá (MỚI) -->
+            <!-- Quản lý Voucher -->
+            <?php if (hasPermission('VOUCHER_VIEW')): ?>
+            <li class="nav-item">
+                <a class="nav-link <?= strpos($_SERVER['REQUEST_URI'], '/admin/vouchers') !== false ? 'active' : '' ?>" href="/admin/vouchers">
+                    <i class="fas fa-tag"></i> <span>Quản lý Voucher</span>
+                </a>
+            </li>
+            <?php endif; ?>
+
+            <!-- Quản lý Đánh giá -->
+            <?php if (hasPermission('REVIEW_VIEW')): ?>
             <li class="nav-item">
                 <a class="nav-link <?= strpos($_SERVER['REQUEST_URI'], '/admin/reviews') !== false ? 'active' : '' ?>" href="/admin/reviews">
                     <i class="fas fa-star"></i> <span>Quản lý Đánh giá</span>
                 </a>
             </li>
+            <?php endif; ?>
 
-            <!-- CRM & Tasks (MỚI) -->
+            <!-- CRM & Tasks -->
+            <?php if (hasPermission('CRM_VIEW')): ?>
             <li class="nav-item">
                 <a class="nav-link <?= strpos($_SERVER['REQUEST_URI'], '/admin/crm') !== false ? 'active' : '' ?>" href="/admin/crm">
                     <i class="fas fa-users-cog"></i> <span>CRM & Tasks</span>
                 </a>
             </li>
-
-            <!-- ====== HẾT MENU MỚI ====== -->
-
-            <!-- Quản lý Người dùng -->
-            <li class="nav-item">
-                <a class="nav-link <?= strpos($_SERVER['REQUEST_URI'], '/admin/users') !== false ? 'active' : '' ?>" href="/admin/users">
-                    <i class="fas fa-users"></i> <span>Quản lý Người dùng</span>
-                </a>
-            </li>
+            <?php endif; ?>
 
             <!-- Báo cáo -->
+            <?php if (hasPermission('REPORT_VIEW')): ?>
             <li class="nav-item">
                 <a class="nav-link <?= strpos($_SERVER['REQUEST_URI'], '/admin/reports') !== false ? 'active' : '' ?>" href="/admin/reports">
                     <i class="fas fa-chart-bar"></i> <span>Báo cáo</span>
                 </a>
             </li>
+            <?php endif; ?>
+
+            <!-- Quản lý Người dùng (Admin luôn thấy) -->
+            <?php if (hasRole(['Admin', 'Manager'])): ?>
+            <li class="nav-item">
+                <a class="nav-link <?= strpos($_SERVER['REQUEST_URI'], '/admin/users') !== false ? 'active' : '' ?>" href="/admin/users">
+                    <i class="fas fa-users"></i> <span>Quản lý Người dùng</span>
+                </a>
+            </li>
+            <?php endif; ?>
         </ul>
     </div>
 
@@ -218,12 +271,13 @@
                 elseif (strpos($_SERVER['REQUEST_URI'], '/admin/tours') !== false) echo 'Quản lý Tour';
                 elseif (strpos($_SERVER['REQUEST_URI'], '/admin/schedules') !== false) echo 'Lịch khởi hành';
                 elseif (strpos($_SERVER['REQUEST_URI'], '/admin/bookings') !== false) echo 'Quản lý Booking';
-                elseif (strpos($_SERVER['REQUEST_URI'], '/admin/vouchers') !== false) echo 'Quản lý Voucher';
-                elseif (strpos($_SERVER['REQUEST_URI'], '/admin/users') !== false) echo 'Quản lý Người dùng';
-                elseif (strpos($_SERVER['REQUEST_URI'], '/admin/reports') !== false) echo 'Báo cáo';
+
                 elseif (strpos($_SERVER['REQUEST_URI'], '/admin/invoices') !== false) echo 'Quản lý Hóa đơn';
+                elseif (strpos($_SERVER['REQUEST_URI'], '/admin/contracts') !== false) echo 'Quản lý Hợp đồng';
+                elseif (strpos($_SERVER['REQUEST_URI'], '/admin/vouchers') !== false) echo 'Quản lý Voucher';
                 elseif (strpos($_SERVER['REQUEST_URI'], '/admin/reviews') !== false) echo 'Quản lý Đánh giá';
                 elseif (strpos($_SERVER['REQUEST_URI'], '/admin/crm') !== false) echo 'CRM & Tasks';
+                elseif (strpos($_SERVER['REQUEST_URI'], '/admin/reports') !== false) echo 'Báo cáo';
                 else echo 'Quản trị';
                 ?>
             </div>

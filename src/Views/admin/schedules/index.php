@@ -2,9 +2,13 @@
 
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h2><i class="fas fa-calendar-alt"></i> Lịch khởi hành</h2>
+    
+    <!-- Nút Thêm lịch mới - Chỉ Admin và Manager -->
+    <?php if (hasPermission('SCHEDULE_CREATE')): ?>
     <a href="/admin/schedule/create" class="btn btn-success">
         <i class="fas fa-plus"></i> Thêm lịch mới
     </a>
+    <?php endif; ?>
 </div>
 
 <?php if (isset($_SESSION['success'])): ?>
@@ -47,19 +51,36 @@
                             <td><?= $item['AvailableSlots'] ?></td>
                             <td>
                                 <?php
-                                $statusClass = match($item['Status']) {
-                                    'Đang mở' => 'success',
-                                    'Đã kín' => 'warning',
-                                    'Đã khởi hành' => 'info',
-                                    'Hủy' => 'danger',
-                                    default => 'secondary'
-                                };
+                                // Dùng parameterized map để tránh lỗi encoding khi so sánh
+                                $st = $item['Status'] ?? '';
+                                $statusMap = [
+                                    'ng m' => ['success', 'Đang mở'],
+                                    'kín'  => ['warning', 'Đã kín'],
+                                    'hành' => ['info',    'Đã khởi hành'],
+                                    'ủy'   => ['danger',  'Đã hủy'],
+                                ];
+                                $statusClass = 'secondary';
+                                $statusLabel = $st ?: 'Đang mở';
+                                foreach ($statusMap as $key => [$cls, $label]) {
+                                    if (strpos($st, $key) !== false) {
+                                        $statusClass = $cls;
+                                        $statusLabel = $label;
+                                        break;
+                                    }
+                                }
                                 ?>
-                                <span class="badge bg-<?= $statusClass ?>"><?= $item['Status'] ?></span>
+                                <span class="badge bg-<?= $statusClass ?>"><?= htmlspecialchars($statusLabel) ?></span>
                             </td>
                             <td>
+                                <!-- Nút Sửa - Chỉ Admin và Manager -->
+                                <?php if (hasPermission('SCHEDULE_EDIT')): ?>
                                 <a href="/admin/schedule/edit/<?= $item['ScheduleID'] ?>" class="btn btn-sm btn-primary">Sửa</a>
+                                <?php endif; ?>
+                                
+                                <!-- Nút Xóa - Chỉ Admin và Manager -->
+                                <?php if (hasPermission('SCHEDULE_DELETE')): ?>
                                 <a href="/admin/schedule/delete/<?= $item['ScheduleID'] ?>" class="btn btn-sm btn-danger" onclick="return confirm('Xóa lịch khởi hành này?')">Xóa</a>
+                                <?php endif; ?>
                             </td>
                         </tr>
                         <?php endforeach; ?>

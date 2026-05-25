@@ -265,6 +265,14 @@ class BookingController extends BaseController {
         $bookings = [];
         if ($customer) {
             $bookings = $this->bookingModel->getByCustomer($customer['CustomerID']);
+            // Đánh dấu booking nào đã được đánh giá
+            $db2 = db();
+            foreach ($bookings as &$b) {
+                $stmt2 = $db2->prepare("SELECT COUNT(*) as cnt FROM Reviews WHERE BookingID = :bid");
+                $stmt2->execute([':bid' => $b['BookingID']]);
+                $b['HasReviewed'] = (int)$stmt2->fetch()['cnt'] > 0;
+            }
+            unset($b);
         }
         
         $this->view('booking.history', ['bookings' => $bookings]);

@@ -17,14 +17,26 @@
     <?php else: ?>
         <?php foreach ($tours as $tour): ?>
         <div class="col-md-4 mb-4">
-            <div class="card tour-card h-100">
-                <div class="card-body">
+            <div class="card tour-card h-100 shadow-sm">
+                <!-- Ảnh thumbnail -->
+                <?php if (!empty($tour['ThumbnailURL'])): ?>
+                    <img src="<?= htmlspecialchars($tour['ThumbnailURL']) ?>"
+                         class="card-img-top"
+                         alt="<?= htmlspecialchars($tour['TourName']) ?>"
+                         style="height:200px; object-fit:cover;">
+                <?php else: ?>
+                    <div style="height:200px; background:#e9ecef; display:flex; align-items:center; justify-content:center;">
+                        <i class="fas fa-image fa-3x text-muted"></i>
+                    </div>
+                <?php endif; ?>
+
+                <div class="card-body d-flex flex-column">
                     <h5 class="card-title text-primary"><?= htmlspecialchars($tour['TourName']) ?></h5>
                     <p class="card-text">
                         <i class="fas fa-tag"></i> <strong>Mã tour:</strong> <?= htmlspecialchars($tour['TourCode']) ?><br>
                         <i class="fas fa-clock"></i> <strong>Thời gian:</strong> <?= $tour['Duration'] ?> ngày
                     </p>
-                    <p class="card-text text-muted small">
+                    <p class="card-text text-muted small flex-grow-1">
                         <?= htmlspecialchars(substr($tour['Description'] ?? '', 0, 100)) ?>...
                     </p>
                     <div class="d-flex justify-content-between align-items-center mt-3">
@@ -40,5 +52,4 @@
     <?php endif; ?>
 </div>
 
-<?php require_once __DIR__ . '/../layouts/footer.php';
-?>
+<?php require_once __DIR__ . '/../layouts/footer.php'; ?>

@@ -195,5 +195,53 @@ class Booking {
         $result = $stmt->fetch();
         return $result['count'];
     }
+    
+    // ========== HÀM MỚI CHO MANAGER ==========
+    
+    /**
+     * Lấy tổng doanh thu (dựa trên tổng tiền của booking đã xác nhận và chưa hủy)
+     */
+    public function getTotalRevenue(): float {
+        $sql = "SELECT SUM(TotalAmount) as Total 
+                FROM Bookings 
+                WHERE BookingStatus != 'Đã hủy'";
+        $stmt = $this->db->query($sql);
+        $result = $stmt->fetch();
+        return (float)($result['Total'] ?? 0);
+    }
+    
+    /**
+     * Lấy tổng số booking
+     */
+    public function getTotalBookings(): int {
+        $sql = "SELECT COUNT(*) as Count FROM Bookings";
+        $stmt = $this->db->query($sql);
+        $result = $stmt->fetch();
+        return (int)($result['Count'] ?? 0);
+    }
+    
+    /**
+     * Lấy số booking đang chờ xác nhận
+     */
+    public function getPendingBookings(): int {
+        $sql = "SELECT COUNT(*) as Count FROM Bookings WHERE BookingStatus = 'Chờ xác nhận'";
+        $stmt = $this->db->query($sql);
+        $result = $stmt->fetch();
+        return (int)($result['Count'] ?? 0);
+    }
+    
+    /**
+     * Lấy danh sách tất cả booking (dùng cho Manager)
+     */
+    public function getAll(): array {
+        $sql = "SELECT b.*, ts.StartDate, ts.EndDate, t.TourName, c.FullName as CustomerName
+                FROM Bookings b
+                JOIN TourSchedules ts ON b.ScheduleID = ts.ScheduleID
+                JOIN Tours t ON ts.TourID = t.TourID
+                JOIN Customers c ON b.CustomerID = c.CustomerID
+                ORDER BY b.CreatedAt DESC";
+        $stmt = $this->db->query($sql);
+        return $stmt->fetchAll();
+    }
 }
 ?>

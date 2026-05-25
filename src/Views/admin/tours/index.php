@@ -2,9 +2,13 @@
 
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h2><i class="fas fa-umbrella-beach"></i> Quản lý tour</h2>
+    
+    <!-- Nút Thêm tour mới - Chỉ Admin và Manager -->
+    <?php if (hasPermission('TOUR_CREATE')): ?>
     <a href="/admin/tours/create" class="btn btn-success">
         <i class="fas fa-plus"></i> Thêm tour mới
     </a>
+    <?php endif; ?>
 </div>
 
 <?php if (isset($_SESSION['success'])): ?>
@@ -49,12 +53,19 @@
                             </td>
                             <td><?= date('d/m/Y', strtotime($tour['CreatedAt'])) ?></td>
                             <td>
+                                <!-- Nút Sửa - Chỉ Admin và Manager -->
+                                <?php if (hasPermission('TOUR_EDIT')): ?>
                                 <a href="/admin/tours/edit/<?= $tour['TourID'] ?>" class="btn btn-sm btn-primary">
                                     <i class="fas fa-edit"></i> Sửa
                                 </a>
+                                <?php endif; ?>
+                                
+                                <!-- Nút Xóa - Chỉ Admin và Manager -->
+                                <?php if (hasPermission('TOUR_DELETE')): ?>
                                 <a href="/admin/tours/delete/<?= $tour['TourID'] ?>" class="btn btn-sm btn-danger" onclick="return confirm('Bạn có chắc muốn xóa tour này?')">
                                     <i class="fas fa-trash"></i> Xóa
                                 </a>
+                                <?php endif; ?>
                             </td>
                         </tr>
                         <?php endforeach; ?>

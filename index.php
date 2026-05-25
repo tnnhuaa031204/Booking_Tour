@@ -1,4 +1,31 @@
 <?php
+
+// ====== SERVE FILE TĨNH (ảnh, css, js) ======
+$staticPath = __DIR__ . '/public' . parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+if (is_file($staticPath)) {
+    $ext = strtolower(pathinfo($staticPath, PATHINFO_EXTENSION));
+    $mimeTypes = [
+        'png'  => 'image/png',
+        'jpg'  => 'image/jpeg',
+        'jpeg' => 'image/jpeg',
+        'gif'  => 'image/gif',
+        'webp' => 'image/webp',
+        'css'  => 'text/css',
+        'js'   => 'application/javascript',
+        'svg'  => 'image/svg+xml',
+        'ico'  => 'image/x-icon',
+        'woff' => 'font/woff',
+        'woff2'=> 'font/woff2',
+        'ttf'  => 'font/ttf',
+    ];
+    if (isset($mimeTypes[$ext])) {
+        header('Content-Type: ' . $mimeTypes[$ext]);
+        readfile($staticPath);
+        exit();
+    }
+}
+// =============================================
+
 session_start();
 
 ini_set('display_errors', 1);
@@ -6,6 +33,14 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 require_once 'config.php';
+
+// ========== HELPER: chuyển kebab-case sang camelCase ==========
+function toCamelCase($str) {
+    $parts = explode('-', $str);
+    $first = array_shift($parts);
+    return $first . implode('', array_map('ucfirst', $parts));
+}
+// ==============================================================
 
 // ========== ROUTE ĐẶC BIỆT CHO AJAX APPLY VOUCHER ==========
 if (strpos($_SERVER['REQUEST_URI'], '/booking/applyVoucher') !== false) {
@@ -29,12 +64,14 @@ if (empty($path)) {
 $parts = explode('/', $path);
 $controllerName = ucfirst($parts[0]) . 'Controller';
 
-// Xử lý đặc biệt cho admin
+// ====== XỬ LÝ ROUTE ADMIN ======
 if ($parts[0] == 'admin') {
+    $controllerName = 'AdminController';
+
     // ====== BÁO CÁO THỐNG KÊ ======
     if (isset($parts[1]) && $parts[1] == 'reports') {
         if (isset($parts[2])) {
-            $actionName = 'report' . ucfirst($parts[2]);
+            $actionName = 'report' . ucfirst(toCamelCase($parts[2]));
             $id = $parts[3] ?? null;
         } else {
             $actionName = 'reports';
@@ -44,7 +81,7 @@ if ($parts[0] == 'admin') {
     // ====== QUẢN LÝ VOUCHER ======
     elseif (isset($parts[1]) && $parts[1] == 'voucher') {
         if (isset($parts[2])) {
-            $actionName = 'voucher' . ucfirst($parts[2]);
+            $actionName = 'voucher' . ucfirst(toCamelCase($parts[2]));
             $id = $parts[3] ?? null;
         } else {
             $actionName = 'vouchers';
@@ -54,7 +91,7 @@ if ($parts[0] == 'admin') {
     // ====== QUẢN LÝ LỊCH KHỞI HÀNH ======
     elseif (isset($parts[1]) && $parts[1] == 'schedule') {
         if (isset($parts[2])) {
-            $actionName = 'schedule' . ucfirst($parts[2]);
+            $actionName = 'schedule' . ucfirst(toCamelCase($parts[2]));
             $id = $parts[3] ?? null;
         } else {
             $actionName = 'schedules';
@@ -64,40 +101,40 @@ if ($parts[0] == 'admin') {
     // ====== QUẢN LÝ BOOKING ======
     elseif (isset($parts[1]) && $parts[1] == 'bookings') {
         if (isset($parts[2])) {
-            $actionName = 'booking' . ucfirst($parts[2]);
+            $actionName = 'booking' . ucfirst(toCamelCase($parts[2]));
             $id = $parts[3] ?? null;
         } else {
             $actionName = 'bookings';
             $id = null;
         }
     }
-    // ====== QUẢN LÝ HÓA ĐƠN (MỚI) ======
+    // ====== QUẢN LÝ HÓA ĐƠN ======
     elseif (isset($parts[1]) && $parts[1] == 'invoices') {
         $controllerName = 'InvoiceController';
         if (isset($parts[2])) {
-            $actionName = $parts[2];
+            $actionName = toCamelCase($parts[2]);
             $id = $parts[3] ?? null;
         } else {
             $actionName = 'index';
             $id = null;
         }
     }
-    // ====== QUẢN LÝ ĐÁNH GIÁ (MỚI) ======
+    // ====== QUẢN LÝ ĐÁNH GIÁ ======
     elseif (isset($parts[1]) && $parts[1] == 'reviews') {
         $controllerName = 'ReviewController';
         if (isset($parts[2])) {
-            $actionName = $parts[2];
+            $actionName = toCamelCase($parts[2]);
             $id = $parts[3] ?? null;
         } else {
             $actionName = 'index';
             $id = null;
         }
     }
-    // ====== CRM (MỚI) ======
+    // ====== CRM ======
     elseif (isset($parts[1]) && $parts[1] == 'crm') {
         $controllerName = 'CRMController';
         if (isset($parts[2])) {
-            $actionName = $parts[2];
+            $actionName = toCamelCase($parts[2]);
             $id = $parts[3] ?? null;
         } else {
             $actionName = 'index';
@@ -107,7 +144,7 @@ if ($parts[0] == 'admin') {
     // ====== QUẢN LÝ NGƯỜI DÙNG ======
     elseif (isset($parts[1]) && $parts[1] == 'users') {
         if (isset($parts[2])) {
-            $actionName = 'user' . ucfirst($parts[2]);
+            $actionName = 'user' . ucfirst(toCamelCase($parts[2]));
             $id = $parts[3] ?? null;
         } else {
             $actionName = 'users';
@@ -117,7 +154,7 @@ if ($parts[0] == 'admin') {
     // ====== QUẢN LÝ TOUR ======
     elseif (isset($parts[1]) && $parts[1] == 'tours') {
         if (isset($parts[2])) {
-            $actionName = $parts[2];
+            $actionName = toCamelCase($parts[2]);
             $id = $parts[3] ?? null;
         } else {
             $actionName = 'tours';
@@ -125,12 +162,30 @@ if ($parts[0] == 'admin') {
         }
     }
     else {
-        $actionName = isset($parts[1]) ? $parts[1] : 'dashboard';
+        $actionName = isset($parts[1]) ? toCamelCase($parts[1]) : 'dashboard';
         $id = isset($parts[2]) ? $parts[2] : null;
     }
-} else {
-    $actionName = isset($parts[1]) ? $parts[1] : 'index';
+}
+// ====== XỬ LÝ ROUTE THANH TOÁN ======
+elseif ($parts[0] == 'payment') {
+    $controllerName = 'PaymentController';
+    $actionName = isset($parts[1]) ? toCamelCase($parts[1]) : 'index';
     $id = isset($parts[2]) ? $parts[2] : null;
+}
+// ====== XỬ LÝ CÁC ROUTE CÔNG KHAI ======
+elseif ($parts[0] == 'review') {
+    $controllerName = 'ReviewController';
+    $actionName = isset($parts[1]) ? toCamelCase($parts[1]) : 'myReviews';
+    $id = isset($parts[2]) ? $parts[2] : null;
+}
+elseif ($parts[0] == 'home' || $parts[0] == 'auth' || $parts[0] == 'booking' || $parts[0] == 'tour' || $parts[0] == 'profile') {
+    $controllerName = ucfirst($parts[0]) . 'Controller';
+    $actionName = isset($parts[1]) ? toCamelCase($parts[1]) : 'index';
+    $id = isset($parts[2]) ? $parts[2] : null;
+}
+else {
+    header('Location: /home/index');
+    exit();
 }
 
 $controllerFile = __DIR__ . '/src/Controllers/' . $controllerName . '.php';

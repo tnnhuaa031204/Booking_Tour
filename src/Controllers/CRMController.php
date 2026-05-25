@@ -18,7 +18,7 @@ class CRMController extends BaseController {
         $this->customerModel = new Customer();
     }
     
-    // ====== HÀM INDEX (MỚI THÊM) ======
+    // ====== HÀM INDEX ======
     public function index() {
         // Chuyển hướng về logs mặc định
         $this->redirect('/admin/crm/logs');
@@ -26,7 +26,7 @@ class CRMController extends BaseController {
     
     // ====== CRM Logs ======
     public function logs() {
-        if (!$this->hasPermission('MANAGE_CRM', 'CanView')) {
+        if (!$this->hasPermission('CRM_VIEW')) {
             $_SESSION['error'] = 'Bạn không có quyền xem CRM';
             $this->redirect('/admin/dashboard');
             return;
@@ -37,7 +37,7 @@ class CRMController extends BaseController {
     }
     
     public function createLog() {
-        if (!$this->hasPermission('MANAGE_CRM', 'CanCreate')) {
+        if (!$this->hasPermission('CRM_CREATE', 'CanCreate')) {
             $_SESSION['error'] = 'Bạn không có quyền tạo ghi chú CRM';
             $this->redirect('/admin/crm');
             return;
@@ -60,7 +60,7 @@ class CRMController extends BaseController {
     
     // ====== Tasks ======
     public function tasks() {
-        if (!$this->hasPermission('MANAGE_CRM', 'CanView')) {
+        if (!$this->hasPermission('CRM_VIEW')) {
             $_SESSION['error'] = 'Bạn không có quyền xem tasks';
             $this->redirect('/admin/dashboard');
             return;
@@ -71,7 +71,7 @@ class CRMController extends BaseController {
     }
     
     public function createTask() {
-        if (!$this->hasPermission('MANAGE_CRM', 'CanCreate')) {
+        if (!$this->hasPermission('CRM_CREATE', 'CanCreate')) {
             $_SESSION['error'] = 'Bạn không có quyền tạo task';
             $this->redirect('/admin/crm');
             return;
@@ -93,7 +93,7 @@ class CRMController extends BaseController {
     }
     
     public function completeTask($id = null) {
-        if (!$this->hasPermission('MANAGE_CRM', 'CanEdit')) {
+        if (!$this->hasPermission('CRM_VIEW', 'CanEdit')) {
             $_SESSION['error'] = 'Bạn không có quyền cập nhật task';
             $this->redirect('/admin/crm');
             return;

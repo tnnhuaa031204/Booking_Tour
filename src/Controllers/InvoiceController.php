@@ -20,7 +20,7 @@ class InvoiceController extends BaseController {
     
     // Danh sách hóa đơn
     public function index() {
-        if (!$this->hasPermission('MANAGE_INVOICES', 'CanView')) {
+        if (!$this->hasPermission('INVOICE_VIEW')) {
             $_SESSION['error'] = 'Bạn không có quyền xem hóa đơn';
             $this->redirect('/admin/dashboard');
             return;
@@ -32,7 +32,7 @@ class InvoiceController extends BaseController {
     
     // Xem chi tiết hóa đơn
     public function detail($id = null) {
-        if (!$this->hasPermission('MANAGE_INVOICES', 'CanView')) {
+        if (!$this->hasPermission('INVOICE_VIEW')) {
             $_SESSION['error'] = 'Bạn không có quyền xem hóa đơn';
             $this->redirect('/admin/invoices');
             return;
@@ -50,7 +50,7 @@ class InvoiceController extends BaseController {
     
     // Tạo hóa đơn mới từ booking
     public function create($bookingId = null) {
-        if (!$this->hasPermission('MANAGE_INVOICES', 'CanCreate')) {
+        if (!$this->hasPermission('INVOICE_CREATE', 'CanCreate')) {
             $_SESSION['error'] = 'Bạn không có quyền tạo hóa đơn';
             $this->redirect('/admin/invoices');
             return;
@@ -76,7 +76,7 @@ class InvoiceController extends BaseController {
     
     // Gửi email hóa đơn
     public function sendEmail($id = null) {
-        if (!$this->hasPermission('MANAGE_INVOICES', 'CanSend')) {
+        if (!$this->hasPermission('INVOICE_VIEW', 'CanExport')) {
             $_SESSION['error'] = 'Bạn không có quyền gửi email hóa đơn';
             $this->redirect('/admin/invoices');
             return;
@@ -100,7 +100,7 @@ class InvoiceController extends BaseController {
     
     // Xuất PDF (placeholder)
     public function pdf($id = null) {
-        if (!$this->hasPermission('MANAGE_INVOICES', 'CanView')) {
+        if (!$this->hasPermission('INVOICE_VIEW')) {
             $_SESSION['error'] = 'Bạn không có quyền xem hóa đơn';
             $this->redirect('/admin/invoices');
             return;

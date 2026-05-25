@@ -34,6 +34,14 @@
                 </table>
                 
                 <div class="text-center mt-4">
+                    <!-- ====== NÚT THANH TOÁN MỚI ====== -->
+                    <?php if ($booking['PaymentStatus'] == 'Chưa thanh toán'): ?>
+                    <a href="/payment/index/<?= $booking['BookingID'] ?>" class="btn btn-warning btn-lg">
+                        <i class="fas fa-credit-card"></i> Thanh toán ngay
+                    </a>
+                    <?php endif; ?>
+                    <!-- ================================== -->
+                    
                     <a href="/" class="btn btn-primary">Về trang chủ</a>
                     <a href="/booking/history" class="btn btn-outline-primary">Xem lịch sử đặt tour</a>
                 </div>
