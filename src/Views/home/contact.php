@@ -3,7 +3,7 @@
 <div class="row">
     <div class="col-12">
         <h1>Liên hệ</h1>
-        <p>Địa chỉ: 123 Đường Du Lịch, Quận 1, TP.HCM</p>
+        <p>Địa chỉ: 123 Đường Du Lịch</p>
         <p>Điện thoại: 1900 1234</p>
         <p>Email: support@bookingtour.com</p>
     </div>

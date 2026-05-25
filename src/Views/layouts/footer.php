@@ -3,7 +3,7 @@
     <footer class="bg-dark text-white text-center py-4 mt-5">
         <div class="container">
             <p class="mb-0">
-                <i class="fas fa-copyright"></i> 2026 Booking Tour Du Lịch. All rights reserved.
+                <i class="fas fa-copyright"></i> 2026 Booking Tour Du Lịch.
             </p>
             <p class="mb-0 small">
                 <i class="fas fa-phone"></i> Hotline: 1900 1234 | 
